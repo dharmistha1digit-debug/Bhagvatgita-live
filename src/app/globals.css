@@ -218,5 +218,22 @@ button, a, [role="button"] {
 [data-theme="light"] .text-slate-500 { color: var(--text-muted) !important; }
 [data-theme="light"] .border-slate-800 { border-color: var(--border-secondary) !important; }
 [data-theme="light"] .border-slate-700 { border-color: var(--border-primary) !important; }
+/* ============================================================
+   🦋 BUTTERFLY ANIMATION
+   ============================================================ */
+@keyframes flutterWingLeft {
+  0%, 100% { transform: rotateY(0deg) skewY(0deg); }
+  50% { transform: rotateY(60deg) skewY(15deg); }
+}
+@keyframes flutterWingRight {
+  0%, 100% { transform: rotateY(0deg) skewY(0deg); }
+  50% { transform: rotateY(-60deg) skewY(-15deg); }
+}
+@keyframes floatButterfly {
+  0% { transform: translateY(0px) translateX(0px) rotate(-10deg); }
+  33% { transform: translateY(-15px) translateX(10px) rotate(10deg); }
+  66% { transform: translateY(-5px) translateX(-5px) rotate(-5deg); }
+  100% { transform: translateY(0px) translateX(0px) rotate(-10deg); }
+}
 [data-theme="light"] .text-amber-400 { color: var(--gold-primary) !important; }
 [data-theme="light"] .text-amber-500 { color: var(--gold-primary) !important; }

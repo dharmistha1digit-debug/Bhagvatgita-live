@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Bookmark, Volume2, VolumeX, Sparkles, ChevronLeft, ChevronRight, Play, Pause, AlertCircle, BookOpen, Share2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import Butterfly from '@/components/Butterfly';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface VerseData {
@@ -350,70 +351,92 @@ export default function VerseDetail({ params }: PageProps) {
         {/* Shloka Card Section */}
         <section className="max-w-4xl mx-auto px-6 py-10 space-y-8">
           
-          {/* Shloka Card */}
-          <div className="apple-card p-8 md:p-12 space-y-8 text-center animate-fade-in">
+          {/* Shloka Card with Dynamic CSS Patrika & Real Butterflies */}
+          <div className="relative animate-fade-in flex flex-col justify-center overflow-visible mt-16 mb-12 mx-auto w-full max-w-4xl z-10"
+               style={{
+                 background: '#fcf1d8',
+                 backgroundImage: 'url("https://www.transparenttextures.com/patterns/old-wall.png"), radial-gradient(ellipse at center, #fcf1d8 0%, #e8cfa6 100%)',
+                 boxShadow: '0 10px 30px rgba(0,0,0,0.15), inset 0 0 40px rgba(139, 69, 19, 0.1)',
+                 borderRadius: '2px',
+               }}
+          >
+            {/* Top Roller */}
+            <div className="absolute top-0 left-[-20px] right-[-20px] h-[30px] rounded-[15px] z-20"
+                 style={{
+                   background: 'linear-gradient(to bottom, #5c2e0b 0%, #3a1d07 40%, #5c2e0b 100%)',
+                   boxShadow: '0 5px 15px rgba(0,0,0,0.3), inset 0 0 10px rgba(0,0,0,0.5)',
+                   marginTop: '-15px'
+                 }}
+            >
+              <div className="absolute left-[-10px] top-[5px] w-[10px] h-[20px] rounded-l-full bg-[#3a1d07]" />
+              <div className="absolute right-[-10px] top-[5px] w-[10px] h-[20px] rounded-r-full bg-[#3a1d07]" />
+            </div>
+
+            {/* Bottom Roller */}
+            <div className="absolute bottom-0 left-[-20px] right-[-20px] h-[30px] rounded-[15px] z-20"
+                 style={{
+                   background: 'linear-gradient(to top, #5c2e0b 0%, #3a1d07 40%, #5c2e0b 100%)',
+                   boxShadow: '0 -5px 15px rgba(0,0,0,0.3), inset 0 0 10px rgba(0,0,0,0.5)',
+                   marginBottom: '-15px'
+                 }}
+            >
+              <div className="absolute left-[-10px] top-[5px] w-[10px] h-[20px] rounded-l-full bg-[#3a1d07]" />
+              <div className="absolute right-[-10px] top-[5px] w-[10px] h-[20px] rounded-r-full bg-[#3a1d07]" />
+            </div>
+
+            {/* Butterflies */}
+            <Butterfly top="-10px" left="-10px" scale={1.2} animationDelay="0s" />
+            <Butterfly top="30%" right="-15px" scale={0.8} animationDelay="1.5s" />
+            <Butterfly top="5%" right="15%" scale={1} animationDelay="3s" />
+            <Butterfly top="85%" left="5%" scale={0.9} animationDelay="4.5s" />
             
-            <div className="flex justify-between items-center pb-4 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
-              <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>BG {chapterId}.{verseId}</span>
-              
-              <div className="flex items-center gap-2">
+            {/* Content Container */}
+            <div className="relative z-10 px-6 md:px-16 py-12 flex flex-col h-full justify-between">
+              <div className="flex justify-between items-center pb-4 border-b border-amber-900/20">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-900/70">BG {chapterId}.{verseId}</span>
                 
-                <button 
-                  onClick={handlePlayRecitation}
-                  disabled={audioLoading}
-                  className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
-                  style={{
-                    background: audioPlaying ? 'var(--text-primary)' : 'var(--bg-card)',
-                    color: audioPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
-                    borderColor: audioPlaying ? 'var(--text-primary)' : 'var(--border-secondary)'
-                  }}
-                  onMouseEnter={(e) => { if (!audioPlaying) { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; } }}
-                  onMouseLeave={(e) => { if (!audioPlaying) { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-secondary)'; } }}
-                >
-                  {audioLoading ? (
-                    <span className="w-3.5 h-3.5 border-t-2 border-r-transparent rounded-full animate-spin" style={{ borderColor: audioPlaying ? 'var(--bg-primary)' : 'var(--text-primary)' }} />
-                  ) : audioPlaying ? (
-                    <Pause className="w-3.5 h-3.5" />
-                  ) : (
-                    <Play className="w-3.5 h-3.5" />
-                  )}
-                  {audioPlaying ? "Playing" : "Sanskrit"}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={handlePlayRecitation}
+                    disabled={audioLoading}
+                    className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer bg-amber-900/5 text-amber-950 border-amber-900/20 hover:bg-amber-900/10"
+                  >
+                    {audioLoading ? (
+                      <span className="w-3.5 h-3.5 border-t-2 border-r-transparent rounded-full animate-spin border-amber-950" />
+                    ) : audioPlaying ? (
+                      <Pause className="w-3.5 h-3.5" />
+                    ) : (
+                      <Play className="w-3.5 h-3.5" />
+                    )}
+                    {audioPlaying ? "Playing" : "Sanskrit"}
+                  </button>
 
-                <button 
-                  onClick={handleSpeech}
-                  className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
-                  style={{
-                    background: ttsPlaying ? 'var(--text-primary)' : 'var(--bg-card)',
-                    color: ttsPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
-                    borderColor: ttsPlaying ? 'var(--text-primary)' : 'var(--border-secondary)'
-                  }}
-                  onMouseEnter={(e) => { if (!ttsPlaying) { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; } }}
-                  onMouseLeave={(e) => { if (!ttsPlaying) { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-secondary)'; } }}
-                >
-                  {ttsPlaying ? <Volume2 className="w-3.5 h-3.5 animate-pulse" /> : <Volume2 className="w-3.5 h-3.5" />}
-                  Read Aloud
-                </button>
+                  <button 
+                    onClick={handleSpeech}
+                    className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer bg-amber-900/5 text-amber-950 border-amber-900/20 hover:bg-amber-900/10"
+                  >
+                    {ttsPlaying ? <Volume2 className="w-3.5 h-3.5 animate-pulse" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    Read Aloud
+                  </button>
+                </div>
+              </div>
 
+              {audioError && (
+                <div className="flex items-center justify-center gap-2 text-xs font-medium py-1 px-3 rounded-lg max-w-fit mx-auto animate-pulse mt-4 bg-amber-900/10 text-amber-900">
+                  <AlertCircle className="w-4 h-4" /> Server unavailable. Playing local TTS instead.
+                </div>
+              )}
+
+              <div className="space-y-6 py-8 flex-1 flex flex-col justify-center">
+                <p className="text-3xl md:text-4xl font-bold whitespace-pre-line leading-relaxed shloka-sanskrit text-amber-950 drop-shadow-sm">
+                  {verse.slok}
+                </p>
+                
+                <p className="text-xs md:text-sm italic font-mono max-w-3xl mx-auto leading-relaxed text-amber-900/80">
+                  "{verse.transliteration}"
+                </p>
               </div>
             </div>
-
-            {audioError && (
-              <div className="flex items-center justify-center gap-2 text-xs font-medium py-1 px-3 rounded-lg max-w-fit mx-auto animate-pulse" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#d97706' }}>
-                <AlertCircle className="w-4 h-4" /> Server unavailable. Playing local TTS instead.
-              </div>
-            )}
-
-            <div className="space-y-4 py-4">
-              <p className="text-2xl md:text-3.5xl font-bold whitespace-pre-line leading-relaxed shloka-sanskrit" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif', color: 'var(--text-primary)' }}>
-                {verse.slok}
-              </p>
-              
-              <p className="text-xs md:text-sm italic font-mono max-w-3xl mx-auto leading-relaxed pt-2" style={{ color: 'var(--text-muted)' }}>
-                "{verse.transliteration}"
-              </p>
-            </div>
-            
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
