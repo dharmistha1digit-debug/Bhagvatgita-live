@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, BookOpen, Sparkles } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ChapterData {
   chapter_number: number;
@@ -47,7 +48,8 @@ export default function ChapterDetail({ params }: PageProps) {
   const [chapter, setChapter] = useState<ChapterData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'english' | 'hindi'>('english');
+  const { lang, t } = useLanguage();
+  const displayLang = lang === 'en' ? 'en' : 'hi';
 
   useEffect(() => {
     setLoading(true);
@@ -71,9 +73,9 @@ export default function ChapterDetail({ params }: PageProps) {
     return (
       <>
         <Navbar />
-        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 bg-slate-950 text-amber-400 font-serif space-y-4">
-          <div className="w-16 h-16 rounded-full border-t-2 border-amber-500 border-r-2 border-r-transparent animate-spin" />
-          <p className="text-lg tracking-widest uppercase animate-pulse">Loading Divine Chapter...</p>
+        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 space-y-4" style={{ background: 'var(--bg-primary)' }}>
+          <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-r-transparent animate-spin" style={{ borderColor: 'var(--text-primary)' }} />
+          <p className="text-lg tracking-widest uppercase animate-pulse" style={{ color: 'var(--text-secondary)' }}>{t.ch_loading}</p>
         </div>
       </>
     );
@@ -83,10 +85,10 @@ export default function ChapterDetail({ params }: PageProps) {
     return (
       <>
         <Navbar />
-        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 bg-slate-950 text-amber-500 font-serif space-y-4">
-          <p className="text-xl">Error: {error || 'Chapter not found'}</p>
-          <Link href="/" className="px-6 py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-widest transition hover:bg-amber-400">
-            Back to Home
+        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 space-y-4" style={{ background: 'var(--bg-primary)' }}>
+          <p className="text-xl" style={{ color: 'var(--text-primary)' }}>{t.ch_error}: {error || 'Chapter not found'}</p>
+          <Link href="/home" className="px-6 py-2.5 font-bold rounded-full text-xs uppercase tracking-widest transition" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
+            {t.ch_back}
           </Link>
         </div>
       </>
@@ -99,38 +101,39 @@ export default function ChapterDetail({ params }: PageProps) {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-slate-950 text-slate-100 pb-20">
+      <main className="min-h-screen pb-20" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         
         {/* Chapter Header Banner */}
-        <section className="relative h-[45vh] flex items-end justify-center overflow-hidden border-b border-amber-900/30">
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent z-10" />
+        <section className="relative h-[45vh] flex items-end justify-center overflow-hidden border-b" style={{ borderColor: 'var(--border-secondary)' }}>
+          <div className="absolute inset-0 z-10 bg-black/40" />
           
           <Image 
             src={bgImage} 
             alt={chapter.translation} 
             fill 
             priority
-            className="object-cover opacity-40 mix-blend-luminosity" 
+            sizes="100vw"
+            className="object-cover opacity-80" 
           />
           
           <div className="relative z-20 text-center max-w-4xl px-6 pb-12 space-y-3">
             <Link 
-              href="/" 
-              className="inline-flex items-center gap-2 text-amber-500 hover:text-amber-400 text-xs font-bold uppercase tracking-wider transition"
+              href="/home" 
+              className="inline-flex items-center gap-2 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wider transition"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+              <ArrowLeft className="w-3.5 h-3.5" /> {t.ch_back}
             </Link>
             
             <div className="pt-2">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20 uppercase">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-white bg-black/30 px-4 py-1.5 rounded-full border border-white/20 uppercase backdrop-blur-md">
                 Chapter {chapter.chapter_number}
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-serif font-extrabold text-amber-100 text-glow-gold pt-2">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white pt-2" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif', letterSpacing: '-0.02em' }}>
               {chapter.name}
             </h1>
-            <p className="text-sm md:text-base text-amber-400 font-bold tracking-wide">
+            <p className="text-sm md:text-base text-white/90 font-medium tracking-wide">
               {chapter.transliteration} • {chapter.translation}
             </p>
           </div>
@@ -140,44 +143,29 @@ export default function ChapterDetail({ params }: PageProps) {
         <section className="max-w-4xl mx-auto px-6 py-12 space-y-12">
           
           {/* Chapter Summary Card */}
-          <div className="glass-card p-6 md:p-8 rounded-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-900/80 pb-4">
-              <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-bold flex items-center gap-2">
-                <BookOpen className="w-4 h-4" /> Chapter Summary
+          <div className="apple-card p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border-secondary)' }}>
+              <span className="text-xs font-mono uppercase tracking-widest font-bold flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+                <BookOpen className="w-4 h-4" /> {t.ch_summary}
               </span>
-              
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setActiveTab('english')} 
-                  className={`text-xs font-bold uppercase tracking-wider pb-1 transition cursor-pointer ${activeTab === 'english' ? 'border-b-2 border-amber-500 text-amber-400' : 'text-slate-500 hover:text-slate-400'}`}
-                >
-                  English
-                </button>
-                <button 
-                  onClick={() => setActiveTab('hindi')} 
-                  className={`text-xs font-bold uppercase tracking-wider pb-1 transition cursor-pointer ${activeTab === 'hindi' ? 'border-b-2 border-amber-500 text-amber-400' : 'text-slate-500 hover:text-slate-400'}`}
-                >
-                  Hindi
-                </button>
-              </div>
             </div>
 
-            <div className="space-y-4 leading-relaxed text-sm md:text-base text-slate-300">
-              <p className="font-serif italic text-amber-100 text-base md:text-lg border-l-2 border-amber-500/40 pl-4 py-1">
-                Meaning: {activeTab === 'english' ? chapter.meaning.en : chapter.meaning.hi}
+            <div className="space-y-4 leading-relaxed text-sm md:text-base" style={{ color: 'var(--text-secondary)' }}>
+              <p className="italic text-base md:text-lg border-l-4 pl-4 py-1" style={{ color: 'var(--text-primary)', borderColor: 'var(--gold-primary)' }}>
+                {t.ch_meaning} {chapter.meaning?.[displayLang] || chapter.meaning?.['en'] || ''}
               </p>
-              <p className="whitespace-pre-line text-xs md:text-sm text-slate-400 pt-2 leading-relaxed">
-                {activeTab === 'english' ? chapter.summary.en : chapter.summary.hi}
+              <p className="whitespace-pre-line text-xs md:text-sm pt-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                {chapter.summary?.[displayLang] || chapter.summary?.['en'] || ''}
               </p>
             </div>
           </div>
 
           {/* Verses Selection Grid */}
           <div className="space-y-6">
-            <div className="border-b border-amber-900/20 pb-4">
-              <h2 className="text-2xl font-serif font-bold text-amber-200">Select a Verse</h2>
-              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">
-                Choose from the {chapter.verses_count} verses of Chapter {chapter.chapter_number}
+            <div className="border-b pb-4" style={{ borderColor: 'var(--border-secondary)' }}>
+              <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t.ch_select_verse}</h2>
+              <p className="text-[10px] font-mono uppercase tracking-widest mt-1" style={{ color: 'var(--text-muted)' }}>
+                {t.ch_choose_verse.replace('{n}', chapter.verses_count.toString()).replace('{c}', chapter.chapter_number.toString())}
               </p>
             </div>
 
@@ -188,10 +176,18 @@ export default function ChapterDetail({ params }: PageProps) {
                   <Link 
                     href={`/chapter/${chapter.chapter_number}/verse/${verseNum}`}
                     key={verseNum}
-                    className="aspect-square flex flex-col items-center justify-center rounded-xl bg-slate-900/60 hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/40 text-slate-300 hover:text-amber-300 text-sm font-semibold transition cursor-pointer shadow-md"
+                    className="aspect-square flex flex-col items-center justify-center rounded-2xl transition cursor-pointer"
+                    style={{
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-secondary)',
+                      color: 'var(--text-primary)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--border-primary)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-secondary)'; e.currentTarget.style.transform = 'translateY(0)'; }}
                   >
-                    <span className="text-[10px] text-slate-500 font-mono leading-none mb-1">V</span>
-                    <span className="leading-none">{verseNum}</span>
+                    <span className="text-[10px] font-mono leading-none mb-1" style={{ color: 'var(--text-muted)' }}>V</span>
+                    <span className="leading-none font-semibold">{verseNum}</span>
                   </Link>
                 );
               })}

@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Heart, Trash2, BookOpen } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Bookmark {
-  key: string; // e.g. BG1.1
+  key: string;
   chapter: number;
   verse: number;
   sanskrit: string;
@@ -16,6 +17,7 @@ interface Bookmark {
 export default function Bookmarks() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('gita_bookmarks') || '[]');
@@ -40,9 +42,10 @@ export default function Bookmarks() {
     return (
       <>
         <Navbar />
-        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 bg-slate-950 text-amber-400 font-serif space-y-4">
-          <div className="w-16 h-16 rounded-full border-t-2 border-amber-500 border-r-2 border-r-transparent animate-spin" />
-          <p className="text-lg tracking-widest uppercase animate-pulse">Loading Bookmarks...</p>
+        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 font-serif space-y-4"
+          style={{ background: 'var(--bg-primary)', color: 'var(--gold-primary)' }}>
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-t-2 border-amber-500 border-r-2 border-r-transparent animate-spin" />
+          <p className="text-base sm:text-lg tracking-widest uppercase animate-pulse">{t.bm_loading}</p>
         </div>
       </>
     );
@@ -52,109 +55,111 @@ export default function Bookmarks() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-slate-950 text-slate-100 pb-20">
-        
-        {/* Bookmarks Header */}
-        <section className="bg-slate-900/40 border-b border-amber-900/10 py-10 px-6">
-          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <Link 
-                href="/" 
-                className="inline-flex items-center gap-2 text-slate-400 hover:text-amber-400 text-xs font-bold uppercase tracking-wider transition"
-              >
-                <ArrowLeft className="w-4 h-4" /> Back to Home
+      <main className="min-h-screen pb-16 sm:pb-20" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+
+        {/* ── Header ── */}
+        <section className="border-b" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <Link href="/home"
+                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider transition"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold-primary)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}>
+                <ArrowLeft className="w-4 h-4" /> {t.bm_back}
               </Link>
-              <h1 className="text-3xl md:text-4xl font-serif font-bold text-amber-100">Bookmarked Verses</h1>
-              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Your saved spiritual verses</p>
+              <h1 className="font-serif font-bold" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', color: 'var(--text-accent)' }}>
+                {t.bm_title}
+              </h1>
+              <p className="text-[10px] font-mono uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                {t.bm_subtitle}
+              </p>
             </div>
 
             {bookmarks.length > 0 && (
-              <button 
-                onClick={clearAllBookmarks}
-                className="px-4 py-2 border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/20 text-rose-400 text-[10px] font-bold uppercase tracking-widest rounded-xl transition cursor-pointer self-start sm:self-center"
-              >
-                Clear All
+              <button onClick={clearAllBookmarks}
+                className="px-4 py-2 border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/20 text-rose-400 text-[10px] font-bold uppercase tracking-widest rounded-xl transition cursor-pointer self-start sm:self-center whitespace-nowrap">
+                {t.bm_clear_all}
               </button>
             )}
           </div>
         </section>
 
-        {/* Bookmarks List */}
-        <section className="max-w-4xl mx-auto px-6 py-12">
-          
+        {/* ── Bookmarks List ── */}
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {bookmarks.length === 0 ? (
-            <div className="text-center py-20 glass-card p-8 rounded-2xl max-w-xl mx-auto space-y-6">
-              <div className="mx-auto w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center border border-slate-800 text-slate-500">
+            <div className="text-center glass-card rounded-2xl max-w-md mx-auto space-y-5"
+              style={{ padding: 'clamp(2rem, 6vw, 3rem)' }}>
+              <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center border"
+                style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-secondary)', color: 'var(--text-muted)' }}>
                 <Heart className="w-6 h-6" />
               </div>
               <div className="space-y-2">
-                <p className="text-lg font-serif font-bold text-amber-200">No Bookmarks Saved Yet</p>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-                  As you read the Bhagavad Gita, click the heart icon on any verse detail page to save it here for quick contemplation.
+                <p className="text-base sm:text-lg font-serif font-bold" style={{ color: 'var(--text-accent)' }}>
+                  {t.bm_empty_title}
+                </p>
+                <p className="text-xs leading-relaxed max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
+                  {t.bm_empty_desc}
                 </p>
               </div>
-              <Link 
-                href="/"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer"
-              >
-                <BookOpen className="w-4 h-4" /> Explore Chapters
+              <Link href="/home"
+                className="inline-flex items-center gap-2 font-bold rounded-xl text-xs uppercase tracking-wider transition cursor-pointer"
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(135deg, #d97706, #f59e0b)',
+                  color: '#020617',
+                }}>
+                <BookOpen className="w-4 h-4" /> {t.bm_explore}
               </Link>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {bookmarks.map((b) => (
-                <div 
-                  key={b.key}
-                  className="glass-card p-6 rounded-2xl border border-amber-500/10 flex flex-col md:flex-row justify-between gap-6 hover:border-amber-500/30 transition duration-300"
-                >
-                  
-                  {/* Verse info & text */}
-                  <div className="space-y-4 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono font-bold tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">
-                        BG {b.chapter}.{b.verse}
-                      </span>
-                    </div>
+                <div key={b.key}
+                  className="glass-card rounded-2xl flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 transition duration-300"
+                  style={{ padding: 'clamp(1rem, 3vw, 1.5rem)', border: '1px solid var(--border-primary)' }}>
 
-                    <div className="space-y-2">
-                      <p className="text-lg font-serif font-bold text-amber-100 shloka-sanskrit">
+                  {/* Verse info */}
+                  <div className="space-y-3 flex-1 min-w-0">
+                    <span className="inline-block text-[10px] font-mono font-bold tracking-widest px-3 py-1 rounded-lg border"
+                      style={{ color: 'var(--gold-primary)', background: 'rgba(245,158,11,0.08)', borderColor: 'var(--border-primary)' }}>
+                      BG {b.chapter}.{b.verse}
+                    </span>
+                    <div className="space-y-1.5">
+                      <p className="font-serif font-bold shloka-sanskrit" style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', color: 'var(--text-accent)' }}>
                         {b.sanskrit}
                       </p>
-                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                      <p className="text-xs line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                         {b.translation}
                       </p>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex md:flex-col justify-end items-end gap-3 shrink-0">
-                    
-                    {/* Read Verse button */}
-                    <Link 
-                      href={`/chapter/${b.chapter}/verse/${b.verse}`}
-                      className="px-4 py-2 bg-slate-900 hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/30 text-amber-400 hover:text-amber-300 text-[10px] font-bold uppercase tracking-widest rounded-xl transition cursor-pointer"
-                    >
-                      Read Verse
+                  <div className="flex sm:flex-col justify-start sm:justify-center items-start sm:items-end gap-2 shrink-0">
+                    <Link href={`/chapter/${b.chapter}/verse/${b.verse}`}
+                      className="px-3 sm:px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xl transition cursor-pointer whitespace-nowrap border"
+                      style={{
+                        background: 'var(--bg-secondary)', color: 'var(--gold-primary)',
+                        borderColor: 'var(--border-secondary)',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--gold-primary)'; e.currentTarget.style.background = 'rgba(245,158,11,0.08)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-secondary)'; e.currentTarget.style.background = 'var(--bg-secondary)'; }}>
+                      {t.bm_read_verse}
                     </Link>
-
-                    {/* Delete button */}
-                    <button 
-                      onClick={() => removeBookmark(b.key)}
-                      title="Remove Bookmark"
-                      className="p-2 border border-slate-800 hover:border-rose-500/40 bg-slate-900 hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 rounded-xl transition cursor-pointer"
-                    >
+                    <button onClick={() => removeBookmark(b.key)} title="Remove Bookmark"
+                      className="p-2 border rounded-xl transition cursor-pointer"
+                      style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)', borderColor: 'var(--border-secondary)' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(244,63,94,0.4)'; e.currentTarget.style.color = 'rgb(251,113,133)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-secondary)'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
                       <Trash2 className="w-4 h-4" />
                     </button>
-
                   </div>
-
                 </div>
               ))}
             </div>
           )}
-
         </section>
-
       </main>
     </>
   );

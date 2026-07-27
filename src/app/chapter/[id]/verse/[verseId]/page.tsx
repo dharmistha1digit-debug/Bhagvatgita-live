@@ -3,8 +3,9 @@
 import React, { useEffect, useState, use, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Heart, Volume2, VolumeX, Sparkles, ChevronLeft, ChevronRight, Play, Pause, AlertCircle, BookOpen } from 'lucide-react';
+import { ArrowLeft, Bookmark, Volume2, VolumeX, Sparkles, ChevronLeft, ChevronRight, Play, Pause, AlertCircle, BookOpen, Share2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface VerseData {
   _id: string;
@@ -38,10 +39,10 @@ interface VerseData {
 
 const getChapterImage = (id: number) => {
   const images = [
-    '/images/hero_banner_background.png', // Chariot
-    '/images/cosmic_form.png',            // Cosmic
-    '/images/peaceful_meditation.png',    // Meditation
-    '/images/krishna_flute.png',          // Flute
+    '/images/hero_banner_background.png',
+    '/images/cosmic_form.png',
+    '/images/peaceful_meditation.png',
+    '/images/krishna_flute.png',
   ];
   if (id === 1 || id === 18) return images[0];
   if (id === 2 || id === 7 || id === 11) return images[1];
@@ -50,7 +51,6 @@ const getChapterImage = (id: number) => {
   return '/images/divine_entrance.png';
 };
 
-// Simple local static mapping of chapters to their maximum verse counts
 const getChapterVersesCount = (id: number): number => {
   const counts = [47, 72, 43, 42, 29, 47, 30, 28, 34, 42, 55, 20, 35, 27, 20, 24, 28, 78];
   return counts[id - 1] || 47;
@@ -70,18 +70,14 @@ export default function VerseDetail({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Customisation states
-  const [selectedTranslation, setSelectedTranslation] = useState<'sivananda' | 'purohit' | 'tej' | 'rams'>('sivananda');
-  const [selectedCommentary, setSelectedCommentary] = useState<'sivananda' | 'chinmay' | 'rams'>('sivananda');
+  const { lang, t } = useLanguage();
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Audio Chant states
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Browser TTS states
   const [ttsPlaying, setTtsPlaying] = useState(false);
 
   useEffect(() => {
@@ -104,7 +100,6 @@ export default function VerseDetail({ params }: PageProps) {
         setVerse(data);
         setLoading(false);
         
-        // Check local storage for bookmark status
         const bookmarks = JSON.parse(localStorage.getItem('gita_bookmarks') || '[]');
         const key = `BG${chapterId}.${verseId}`;
         setIsBookmarked(bookmarks.some((b: any) => b.key === key));
@@ -116,7 +111,6 @@ export default function VerseDetail({ params }: PageProps) {
       });
   }, [chapterId, verseId]);
 
-  // Clean up audio & speech on unmount
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -149,7 +143,6 @@ export default function VerseDetail({ params }: PageProps) {
     }
   };
 
-  // Play Recitation from holy-bhagavad-gita.org
   const handlePlayRecitation = () => {
     if (audioPlaying) {
       if (audioRef.current) {
@@ -200,7 +193,6 @@ export default function VerseDetail({ params }: PageProps) {
     };
   };
 
-  // Speak translation using browser speech synthesis
   const handleSpeech = () => {
     if (ttsPlaying) {
       window.speechSynthesis.cancel();
@@ -221,9 +213,7 @@ export default function VerseDetail({ params }: PageProps) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     
-    // Choose voice language based on translation type (Hindi / English)
-    const isHindi = selectedTranslation === 'tej' || selectedTranslation === 'rams';
-    utterance.lang = isHindi ? 'hi-IN' : 'en-US';
+    utterance.lang = lang === 'en' ? 'en-US' : 'hi-IN';
     utterance.rate = 0.95;
 
     utterance.onend = () => {
@@ -240,26 +230,36 @@ export default function VerseDetail({ params }: PageProps) {
 
   const getTranslationText = (): string => {
     if (!verse) return '';
-    if (selectedTranslation === 'sivananda') return verse.siva?.et || '';
-    if (selectedTranslation === 'purohit') return verse.purohit?.et || '';
-    if (selectedTranslation === 'tej') return verse.tej?.ht || '';
-    if (selectedTranslation === 'rams') return verse.rams?.ht || '';
+    if (lang === 'en') return verse.siva?.et || verse.purohit?.et || '';
+    if (lang === 'hi') return verse.tej?.ht || verse.rams?.ht || '';
+    // For sanskrit, just return an empty translation string to focus purely on the sloka
+    if (lang === 'sa') return 'संस्कृत अध्ययन (Sanskrit Study)';
     return '';
   };
 
+  const getTranslationAuthor = (): string => {
+    if (!verse || lang === 'sa') return '';
+    if (lang === 'en') {
+      if (verse.siva?.et) return 'Swami Sivananda';
+      if (verse.purohit?.et) return 'Shri Purohit Swami';
+    } else {
+      if (verse.tej?.ht) return 'Swami Tejomayananda';
+      if (verse.rams?.ht) return 'Swami Ramsukhdas';
+    }
+    return 'Swami Sivananda';
+  };
+
   const getCommentaryText = (): string => {
-    if (!verse) return '';
-    if (selectedCommentary === 'sivananda') return verse.siva?.ec || '';
-    if (selectedCommentary === 'chinmay') return verse.chinmay?.hc || '';
-    if (selectedCommentary === 'rams') return verse.rams?.hc || '';
-    return '';
+    if (!verse || lang === 'sa') return '';
+    if (lang === 'en') return verse.siva?.ec || '';
+    return verse.chinmay?.hc || verse.rams?.hc || verse.siva?.ec || '';
   };
 
   const shareVerse = () => {
     if (navigator.share) {
       navigator.share({
         title: `Bhagavad Gita - Chapter ${chapterId}, Verse ${verseId}`,
-        text: `BG ${chapterId}.${verseId}: \n${verse?.slok}\n\nRead more details inside our AI Divine Portal!`,
+        text: `BG ${chapterId}.${verseId}: \n${verse?.slok}\n\nRead more on the Bhagavad Gita app.`,
         url: window.location.href,
       }).catch((err) => console.log(err));
     } else {
@@ -272,9 +272,9 @@ export default function VerseDetail({ params }: PageProps) {
     return (
       <>
         <Navbar />
-        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 bg-slate-950 text-amber-400 font-serif space-y-4">
-          <div className="w-16 h-16 rounded-full border-t-2 border-amber-500 border-r-2 border-r-transparent animate-spin" />
-          <p className="text-lg tracking-widest uppercase animate-pulse">Loading Sacred Verse...</p>
+        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 space-y-4" style={{ background: 'var(--bg-primary)' }}>
+          <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-r-transparent animate-spin" style={{ borderColor: 'var(--text-primary)' }} />
+          <p className="text-lg tracking-widest uppercase animate-pulse" style={{ color: 'var(--text-secondary)' }}>Loading Sacred Verse...</p>
         </div>
       </>
     );
@@ -284,9 +284,9 @@ export default function VerseDetail({ params }: PageProps) {
     return (
       <>
         <Navbar />
-        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 bg-slate-950 text-amber-500 font-serif space-y-4">
-          <p className="text-xl">Error: {error || 'Verse not found'}</p>
-          <Link href={`/chapter/${chapterId}`} className="px-6 py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-widest transition hover:bg-amber-400">
+        <div className="min-h-[80vh] flex flex-col items-center justify-center text-center p-6 space-y-4" style={{ background: 'var(--bg-primary)' }}>
+          <p className="text-xl" style={{ color: 'var(--text-primary)' }}>Error: {error || 'Verse not found'}</p>
+          <Link href={`/chapter/${chapterId}`} className="px-6 py-2.5 font-bold rounded-full text-xs uppercase tracking-widest transition" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
             Back to Chapter {chapterId}
           </Link>
         </div>
@@ -300,48 +300,48 @@ export default function VerseDetail({ params }: PageProps) {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-slate-950 text-slate-100 pb-20">
+      <main className="min-h-screen pb-20" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         
         {/* Navigation & Controls header */}
-        <section className="bg-slate-900/40 border-b border-amber-900/10 py-4 px-6 sticky top-16 z-40 backdrop-blur-md">
+        <section className="border-b py-4 px-6 sticky top-20 z-40" style={{ background: 'var(--bg-nav)', borderColor: 'var(--border-primary)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)' }}>
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
             
-            {/* Back link */}
             <Link 
               href={`/chapter/${chapterId}`} 
-              className="inline-flex items-center gap-2 text-slate-400 hover:text-amber-400 text-xs font-bold uppercase tracking-wider transition"
+              className="inline-flex items-center gap-2 font-bold uppercase tracking-wider transition"
+              style={{ color: 'var(--text-secondary)', fontSize: '11px' }}
             >
               <ArrowLeft className="w-4 h-4" /> Chapter {chapterId}
             </Link>
 
-            {/* Verse title */}
             <div className="text-center">
-              <span className="text-xs font-mono font-bold tracking-widest text-amber-400 uppercase">
+              <span className="text-xs font-mono font-bold tracking-widest uppercase" style={{ color: 'var(--gold-primary)' }}>
                 Verse {chapterId}.{verseId}
               </span>
             </div>
 
-            {/* Quick Actions */}
             <div className="flex items-center gap-2">
-              
-              {/* Share button */}
               <button 
                 onClick={shareVerse}
                 title="Share Verse"
-                className="p-2 rounded-xl bg-slate-900 hover:bg-amber-500/10 text-slate-400 hover:text-amber-400 border border-slate-800 hover:border-amber-500/30 transition cursor-pointer"
+                className="p-2 flex items-center justify-center rounded-full border transition cursor-pointer"
+                style={{ background: 'var(--bg-card)', borderColor: 'var(--border-secondary)', color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
               >
-                <ChevronRight className="w-4 h-4 rotate-90" />
+                <Share2 className="w-4 h-4" />
               </button>
 
-              {/* Bookmark button */}
               <button 
                 onClick={toggleBookmark}
                 title={isBookmarked ? "Remove Bookmark" : "Bookmark Verse"}
-                className={`p-2 rounded-xl border transition-all duration-300 cursor-pointer ${isBookmarked ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' : 'bg-slate-900 hover:bg-amber-500/10 text-slate-400 hover:text-amber-400 border-slate-800 hover:border-amber-500/30'}`}
+                className={`p-2 flex items-center justify-center rounded-full border transition-all duration-300 cursor-pointer ${isBookmarked ? 'bg-rose-50 border-rose-200 text-rose-500 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-400' : ''}`}
+                style={!isBookmarked ? { background: 'var(--bg-card)', borderColor: 'var(--border-secondary)', color: 'var(--text-secondary)' } : undefined}
+                onMouseEnter={(e) => { if (!isBookmarked) e.currentTarget.style.color = 'var(--text-primary)'; }}
+                onMouseLeave={(e) => { if (!isBookmarked) e.currentTarget.style.color = 'var(--text-secondary)'; }}
               >
-                <Heart className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
               </button>
-
             </div>
 
           </div>
@@ -351,34 +351,45 @@ export default function VerseDetail({ params }: PageProps) {
         <section className="max-w-4xl mx-auto px-6 py-10 space-y-8">
           
           {/* Shloka Card */}
-          <div className="parchment-card p-8 md:p-12 rounded-2xl space-y-8 text-center animate-fade-in">
+          <div className="apple-card p-8 md:p-12 space-y-8 text-center animate-fade-in">
             
-            {/* Ambient/recitation controls inside card */}
-            <div className="flex justify-between items-center pb-4 border-b border-amber-800/20">
-              <span className="text-xs font-mono text-amber-400/80 font-bold uppercase tracking-wider">BG {chapterId}.{verseId}</span>
+            <div className="flex justify-between items-center pb-4 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
+              <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>BG {chapterId}.{verseId}</span>
               
               <div className="flex items-center gap-2">
                 
-                {/* Audio Recitation button */}
                 <button 
                   onClick={handlePlayRecitation}
                   disabled={audioLoading}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${audioPlaying ? 'bg-amber-500/10 border-amber-500/40 text-amber-400' : 'bg-slate-950/80 border-amber-950/40 text-amber-300 hover:bg-amber-500/10'}`}
+                  className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
+                  style={{
+                    background: audioPlaying ? 'var(--text-primary)' : 'var(--bg-card)',
+                    color: audioPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                    borderColor: audioPlaying ? 'var(--text-primary)' : 'var(--border-secondary)'
+                  }}
+                  onMouseEnter={(e) => { if (!audioPlaying) { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; } }}
+                  onMouseLeave={(e) => { if (!audioPlaying) { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-secondary)'; } }}
                 >
                   {audioLoading ? (
-                    <span className="w-3.5 h-3.5 border-t-2 border-amber-400 border-r-transparent rounded-full animate-spin" />
+                    <span className="w-3.5 h-3.5 border-t-2 border-r-transparent rounded-full animate-spin" style={{ borderColor: audioPlaying ? 'var(--bg-primary)' : 'var(--text-primary)' }} />
                   ) : audioPlaying ? (
                     <Pause className="w-3.5 h-3.5" />
                   ) : (
                     <Play className="w-3.5 h-3.5" />
                   )}
-                  {audioPlaying ? "Recitation Playing" : "Sanskrit Recitation"}
+                  {audioPlaying ? "Playing" : "Sanskrit"}
                 </button>
 
-                {/* Speech synthesis button */}
                 <button 
                   onClick={handleSpeech}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${ttsPlaying ? 'bg-amber-500/10 border-amber-500/40 text-amber-400' : 'bg-slate-950/80 border-amber-950/40 text-amber-300 hover:bg-amber-500/10'}`}
+                  className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
+                  style={{
+                    background: ttsPlaying ? 'var(--text-primary)' : 'var(--bg-card)',
+                    color: ttsPlaying ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                    borderColor: ttsPlaying ? 'var(--text-primary)' : 'var(--border-secondary)'
+                  }}
+                  onMouseEnter={(e) => { if (!ttsPlaying) { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; } }}
+                  onMouseLeave={(e) => { if (!ttsPlaying) { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-secondary)'; } }}
                 >
                   {ttsPlaying ? <Volume2 className="w-3.5 h-3.5 animate-pulse" /> : <Volume2 className="w-3.5 h-3.5" />}
                   Read Aloud
@@ -387,73 +398,56 @@ export default function VerseDetail({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Chanting play warnings */}
             {audioError && (
-              <div className="flex items-center justify-center gap-2 text-xs text-amber-500/90 font-medium py-1 px-3 bg-amber-500/10 rounded-lg max-w-fit mx-auto animate-pulse">
-                <AlertCircle className="w-4 h-4" /> Recitation server unavailable. Playing local TTS instead.
+              <div className="flex items-center justify-center gap-2 text-xs font-medium py-1 px-3 rounded-lg max-w-fit mx-auto animate-pulse" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#d97706' }}>
+                <AlertCircle className="w-4 h-4" /> Server unavailable. Playing local TTS instead.
               </div>
             )}
 
-            {/* Original Sanskrit Text */}
             <div className="space-y-4 py-4">
-              <p className="text-2xl md:text-3.5xl font-serif text-amber-100 font-bold whitespace-pre-line leading-relaxed shloka-sanskrit text-glow-divine">
+              <p className="text-2xl md:text-3.5xl font-bold whitespace-pre-line leading-relaxed shloka-sanskrit" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif', color: 'var(--text-primary)' }}>
                 {verse.slok}
               </p>
               
-              {/* Transliteration */}
-              <p className="text-xs md:text-sm text-amber-300/60 italic font-mono max-w-3xl mx-auto leading-relaxed pt-2">
-                &quot;{verse.transliteration}&quot;
+              <p className="text-xs md:text-sm italic font-mono max-w-3xl mx-auto leading-relaxed pt-2" style={{ color: 'var(--text-muted)' }}>
+                "{verse.transliteration}"
               </p>
             </div>
             
           </div>
 
-          {/* Grid Layout: Left Column = Translation, Right Column = Custom Visual and Commentaries */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {/* Column 1: Translation (Spans 2 columns) */}
-            <div className="md:col-span-2 glass-card p-6 md:p-8 rounded-2xl space-y-6 flex flex-col justify-between">
+            <div className="md:col-span-2 apple-card p-6 md:p-8 space-y-6 flex flex-col justify-between">
               <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-900/80 pb-4">
-                  <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-bold flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 animate-pulse" /> Translation
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style={{ borderColor: 'var(--border-secondary)' }}>
+                  <span className="text-xs font-mono uppercase tracking-widest font-bold flex items-center gap-2" style={{ color: 'var(--gold-primary)' }}>
+                    <Sparkles className="w-4 h-4" /> Translation
                   </span>
-                  
-                  {/* Selector to choose whose translation to view */}
-                  <select 
-                    value={selectedTranslation}
-                    onChange={(e) => setSelectedTranslation(e.target.value as any)}
-                    className="bg-slate-950 border border-amber-900/40 rounded-xl px-3 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-amber-500 font-semibold cursor-pointer shadow-inner"
-                  >
-                    <option value="sivananda">Swami Sivananda (English)</option>
-                    <option value="purohit">Shri Purohit Swami (English)</option>
-                    <option value="tej">Swami Tejomayananda (Hindi)</option>
-                    <option value="rams">Swami Ramsukhdas (Hindi)</option>
-                  </select>
                 </div>
 
-                <p className="text-base md:text-lg text-slate-200 leading-relaxed font-light pl-4 border-l-2 border-amber-500/50">
+                <p className="text-base md:text-lg leading-relaxed font-light pl-4 border-l-4" style={{ color: 'var(--text-primary)', borderColor: 'var(--gold-primary)' }}>
                   {getTranslationText()}
                 </p>
               </div>
 
-              {/* Scholar signature */}
-              <div className="text-[10px] text-slate-500 font-mono text-right uppercase tracking-wider pt-4 border-t border-slate-900/40">
-                Translation by {selectedTranslation === 'sivananda' ? 'Swami Sivananda' : selectedTranslation === 'purohit' ? 'Shri Purohit Swami' : selectedTranslation === 'tej' ? 'Swami Tejomayananda' : 'Swami Ramsukhdas'}
-              </div>
+              {getTranslationAuthor() && (
+                <div className="text-[10px] font-mono text-right uppercase tracking-wider pt-4 border-t" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-secondary)' }}>
+                  Translation by {getTranslationAuthor()}
+                </div>
+              )}
             </div>
 
-            {/* Column 2: Theme Visual (Spans 1 column) */}
-            <div className="glass-card rounded-2xl overflow-hidden relative min-h-[250px] md:min-h-auto shadow-lg border border-amber-500/10">
+            <div className="apple-card overflow-hidden relative min-h-[250px] md:min-h-auto shadow-sm p-0">
               <Image 
                 src={bgImage} 
                 alt="Divine Theme Visual" 
                 fill 
-                className="object-cover opacity-70 group-hover:scale-105 transition-transform duration-500" 
+                className="object-cover opacity-80" 
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+              <div className="absolute inset-0 bg-black/40" />
               <div className="absolute bottom-4 left-4 right-4">
-                <span className="text-[9px] font-mono uppercase tracking-widest text-amber-400 font-bold bg-slate-950/80 border border-amber-500/30 px-3 py-1 rounded-full backdrop-blur-sm">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-white font-bold bg-black/40 border border-white/20 px-3 py-1 rounded-full backdrop-blur-md">
                   Chapter Theme Visual
                 </span>
               </div>
@@ -461,50 +455,45 @@ export default function VerseDetail({ params }: PageProps) {
 
           </div>
 
-          {/* Commentary Section */}
-          <div className="glass-card p-6 md:p-8 rounded-2xl space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-900/80 pb-4">
-              <span className="text-xs font-mono uppercase tracking-widest text-amber-500 font-bold flex items-center gap-2">
-                <BookOpen className="w-4 h-4" /> Scholar Commentary
-              </span>
-              
-              {/* Selector to choose whose commentary to view */}
-              <select 
-                value={selectedCommentary}
-                onChange={(e) => setSelectedCommentary(e.target.value as any)}
-                className="bg-slate-950 border border-amber-900/40 rounded-xl px-3 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-amber-500 font-semibold cursor-pointer shadow-inner"
-              >
-                <option value="sivananda">Swami Sivananda (English)</option>
-                <option value="chinmay">Swami Chinmayananda (Hindi)</option>
-                <option value="rams">Swami Ramsukhdas (Hindi)</option>
-              </select>
-            </div>
+          {lang !== 'sa' && (
+            <div className="apple-card p-6 md:p-8 space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style={{ borderColor: 'var(--border-secondary)' }}>
+                <span className="text-xs font-mono uppercase tracking-widest font-bold flex items-center gap-2" style={{ color: 'var(--gold-primary)' }}>
+                  <BookOpen className="w-4 h-4" /> Scholar Commentary
+                </span>
+              </div>
 
-            <div className="space-y-4 text-xs md:text-sm text-slate-400 leading-relaxed max-w-4xl whitespace-pre-line">
-              {getCommentaryText() ? (
-                <p>{getCommentaryText()}</p>
-              ) : (
-                <p className="italic text-slate-500 text-xs">This scholar did not provide commentary for this specific verse.</p>
-              )}
+              <div className="space-y-4 text-xs md:text-sm leading-relaxed max-w-4xl whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                {getCommentaryText() ? (
+                  <p>{getCommentaryText()}</p>
+                ) : (
+                  <p className="italic text-xs" style={{ color: 'var(--text-muted)' }}>This scholar did not provide commentary for this specific verse.</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Pagination Controls */}
-          <div className="flex justify-between items-center gap-4 pt-6 border-t border-amber-900/10">
+          <div className="flex justify-between items-center gap-4 pt-6 border-t" style={{ borderColor: 'var(--border-secondary)' }}>
             {verseId > 1 ? (
               <Link 
                 href={`/chapter/${chapterId}/verse/${verseId - 1}`}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900/80 hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/30 text-slate-300 hover:text-amber-300 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border transition cursor-pointer"
+                style={{ background: 'var(--bg-card)', borderColor: 'var(--border-secondary)', color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-secondary)'; }}
               >
                 <ChevronLeft className="w-4 h-4" /> Prev Verse
               </Link>
             ) : (
-              <div className="w-24" /> // placeholder
+              <div className="w-24" />
             )}
 
             <Link 
               href={`/chapter/${chapterId}`}
-              className="text-xs font-mono uppercase tracking-widest text-slate-500 hover:text-amber-400 transition"
+              className="text-xs font-mono uppercase tracking-widest transition"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
             >
               All Verses
             </Link>
@@ -512,12 +501,15 @@ export default function VerseDetail({ params }: PageProps) {
             {verseId < totalVerses ? (
               <Link 
                 href={`/chapter/${chapterId}/verse/${verseId + 1}`}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900/80 hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/30 text-slate-300 hover:text-amber-300 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border transition cursor-pointer"
+                style={{ background: 'var(--bg-card)', borderColor: 'var(--border-secondary)', color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-secondary)'; }}
               >
                 Next Verse <ChevronRight className="w-4 h-4" />
               </Link>
             ) : (
-              <div className="w-24" /> // placeholder
+              <div className="w-24" />
             )}
           </div>
 
