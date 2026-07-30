@@ -2,41 +2,25 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Sparkles, ArrowRight, BookOpen } from 'lucide-react';
 import Image from 'next/image';
-import { BookOpen, ArrowRight, Sparkles } from 'lucide-react';
-import Navbar from '@/components/Navbar';
 import { useLanguage } from '@/context/LanguageContext';
+import Navbar from '@/components/Navbar';
+import dynamic from 'next/dynamic';
+import { chapters } from '@/lib/constants';
 
+const ThreeBackground = dynamic(() => import('@/app/_components/ThreeBackground'), { ssr: false });
+
+// For demonstration
 const sampleShloka = {
-  chapter: 2, verse: 47,
-  sanskrit: 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन |\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ||',
-  transliteration: "karmaṇy-evādhikāras te mā phaleṣu kadācana |\nmā karma-phala-hetur bhūr mā te saṅgo 'stv akarmaṇi ||",
-  english: "You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions. Never consider yourself the cause of results, nor be attached to inaction.",
+  chapter: 2,
+  verse: 47,
+  sanskrit: 'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥',
+  transliteration: 'karmaṇy-evādhikāras te mā phaleṣhu kadāchana\nmā karma-phala-hetur bhūr mā te saṅgo ’stvakarmaṇi',
+  english: 'You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions. Never consider yourself to be the cause of the results of your activities, nor be attached to inaction.'
 };
 
-const chapters = [
-  { id: 1,  chapter_number: 1,  verses_count: 47,  name: 'Arjuna Vishada Yoga',             sanskritName: 'अर्जुनविषादयोग',              translation: 'The Distress of Arjuna',           summary: 'Arjuna, overwhelmed by grief and moral conflict on the battlefield, surrenders to Krishna for guidance.',                                      image: '/images/chapters/ch1.png',  pos: 'center top' },
-  { id: 2,  chapter_number: 2,  verses_count: 72,  name: 'Sankhya Yoga',                    sanskritName: 'सांख्ययोग',                    translation: 'The Yoga of Knowledge',            summary: 'Krishna summarizes the entire wisdom of the Gita, explaining the eternal nature of the soul and selfless duty.',                                image: '/images/chapters/ch2.png',  pos: 'center 20%' },
-  { id: 3,  chapter_number: 3,  verses_count: 43,  name: 'Karma Yoga',                      sanskritName: 'कर्मयोग',                      translation: 'The Yoga of Action',               summary: 'The science of selfless service, teaching how to act in the material world without generating karma.',                                          image: '/images/chapters/ch3.png',  pos: 'center 30%' },
-  { id: 4,  chapter_number: 4,  verses_count: 42,  name: 'Jnana Karma Sannyasa Yoga',       sanskritName: 'ज्ञानकर्मसंन्यासयोग',         translation: 'The Yoga of Knowledge & Action',  summary: 'Krishna reveals the path of eternal wisdom, the purpose of divine avatars, and the nature of sacrifice.',                                       image: '/images/chapters/ch4.png',  pos: 'center top' },
-  { id: 5,  chapter_number: 5,  verses_count: 29,  name: 'Karma Sannyasa Yoga',             sanskritName: 'कर्मसंन्यासयोग',              translation: 'The Yoga of Renunciation',         summary: 'A deep comparison between dry renunciation of action and acting in devotion. Devotion is shown to be superior.',                                image: '/images/chapters/ch5.png',  pos: 'center 25%' },
-  { id: 6,  chapter_number: 6,  verses_count: 47,  name: 'Dhyana Yoga',                     sanskritName: 'ध्यानयोग',                     translation: 'The Yoga of Meditation',           summary: 'Krishna explains the practice of yoga, mind control, and meditation techniques to attain connection with the soul.',                              image: '/images/chapters/ch6.png',  pos: 'center 20%' },
-  { id: 7,  chapter_number: 7,  verses_count: 30,  name: 'Jnana Vijnana Yoga',              sanskritName: 'ज्ञानविज्ञानयोग',             translation: 'The Yoga of Wisdom & Realization', summary: 'Krishna teaches how the material and spiritual energies combine to form all creation, and how to know him.',                                     image: '/images/chapters/ch7.png',  pos: 'center 35%' },
-  { id: 8,  chapter_number: 8,  verses_count: 28,  name: 'Akshara Brahma Yoga',             sanskritName: 'अक्षरब्रह्मयोग',              translation: 'The Yoga of the Imperishable',     summary: 'Explains the ultimate destiny of the soul, how to achieve the supreme state, and the power of remembering Krishna at death.',                    image: '/images/chapters/ch8.png',  pos: 'center 30%' },
-  { id: 9,  chapter_number: 9,  verses_count: 34,  name: 'Raja Vidya Raja Guhya Yoga',      sanskritName: 'राजविद्याराजगुह्ययोग',         translation: 'The Sovereign Science & Secret',   summary: 'Reveals the supreme mystery of divine presence, devotion, and the absolute power of surrender.',                                                 image: '/images/chapters/ch9.png',  pos: 'center 20%' },
-  { id: 10, chapter_number: 10, verses_count: 42,  name: 'Vibhuti Yoga',                    sanskritName: 'विभूतियोग',                    translation: 'The Yoga of Divine Glories',       summary: 'Krishna describes his primary infinite forms, powers, and manifestations throughout creation.',                                                   image: '/images/chapters/ch10.png', pos: 'center top' },
-  { id: 11, chapter_number: 11, verses_count: 55,  name: 'Vishvarupa Darshana Yoga',        sanskritName: 'विश्वरूपदर्शनयोग',            translation: 'The Yoga of the Cosmic Form',      summary: 'Arjuna beholds the spectacular, terrifying cosmic form (Vishwaroopam) of Krishna containing all universes.',                                    image: '/images/chapters/ch11.png', pos: 'center 35%' },
-  { id: 12, chapter_number: 12, verses_count: 20,  name: 'Bhakti Yoga',                     sanskritName: 'भक्तियोग',                     translation: 'The Yoga of Devotion',             summary: 'The ultimate path of pure devotion, loving service, and the qualities of a devotee dear to the Lord.',                                           image: '/images/chapters/ch12.png', pos: 'center 20%' },
-  { id: 13, chapter_number: 13, verses_count: 35,  name: 'Kshetra Kshetrajna Vibhaga Yoga', sanskritName: 'क्षेत्रक्षेत्रज्ञविभागयोग',  translation: 'The Knower & The Field',           summary: 'The distinction between the physical body (field), the individual soul (knower), and the Supersoul.',                                            image: '/images/chapters/ch13.png', pos: 'center 30%' },
-  { id: 14, chapter_number: 14, verses_count: 27,  name: 'Gunatraya Vibhaga Yoga',          sanskritName: 'गुणत्रयविभागयोग',             translation: 'The Three Modes of Nature',        summary: 'Krishna details the three gunas (modes): goodness, passion, and ignorance, and how to transcend them.',                                          image: '/images/chapters/ch14.png', pos: 'center 30%' },
-  { id: 15, chapter_number: 15, verses_count: 20,  name: 'Purushottama Yoga',               sanskritName: 'पुरुषोत्तमयोग',               translation: 'The Supreme Divine Person',        summary: 'The allegory of the inverted Banyan tree representing material existence, and description of the Supreme Self.',                                  image: '/images/chapters/ch15.png', pos: 'center 20%' },
-  { id: 16, chapter_number: 16, verses_count: 24,  name: 'Daivasura Sampad Vibhaga Yoga',   sanskritName: 'दैवासुरसम्पद्विभागयोग',       translation: 'The Divine & Demonic Natures',     summary: 'An exploration of virtues leading to liberation and vices leading to material bondage.',                                                          image: '/images/chapters/ch16.png', pos: 'center top' },
-  { id: 17, chapter_number: 17, verses_count: 28,  name: 'Shraddhatraya Vibhaga Yoga',      sanskritName: 'श्रद्धात्रयविभागयोग',         translation: 'The Threefold Divisions of Faith', summary: 'How faith, food, sacrifice, austerity, and charity are categorised according to the three gunas.',                                                image: '/images/chapters/ch17.png', pos: 'center 25%' },
-  { id: 18, chapter_number: 18, verses_count: 78,  name: 'Moksha Sannyasa Yoga',            sanskritName: 'मोक्षसंन्यासयोग',             translation: 'The Yoga of Liberation',           summary: 'The grand conclusion of the Gita, summarizing all spiritual paths and teaching total surrender to Krishna.',                                      image: '/images/chapters/ch18.png', pos: 'center 30%' },
-];
-
 export default function HomePage() {
-  const [videoReady, setVideoReady] = useState(false);
   const { t } = useLanguage();
 
   return (
@@ -44,66 +28,97 @@ export default function HomePage() {
       <Navbar />
 
       <main className="min-h-screen font-sans pb-16 sm:pb-20" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        
+        {/* ── COHESIVE SPLIT HERO SECTION ── */}
+        <section className="relative flex flex-col md:flex-row w-full overflow-hidden"
+          style={{ minHeight: '90vh', backgroundColor: '#050505' }}>
+          
+          {/* AI Smoke Background with Color-Matching Filters */}
+          <div className="absolute inset-0 w-full h-full pointer-events-none">
+            <Image 
+              src="/images/smoke_bg.jpg"
+              alt="Smoke Background"
+              fill
+              priority
+              className="object-cover opacity-80"
+              style={{ filter: 'grayscale(100%) brightness(0.7) contrast(1.3)' }}
+            />
+            {/* Blending gradient: Dark overlay to blend the poster's dark background into the smoke on the right */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent w-full md:w-1/2" />
+          </div>
 
-        {/* ── HERO SECTION ── */}
-        <section className="relative flex items-center justify-center overflow-hidden border-b"
-          style={{ minHeight: 'clamp(60vh, 80vh, 88vh)', borderColor: 'var(--border-primary)' }}>
+          {/* Poster Image with Seamless Right Fade Mask */}
+          <div className="absolute inset-0 w-full h-full flex items-end justify-start pointer-events-none z-10"
+               style={{
+                 WebkitMaskImage: 'linear-gradient(to right, black 10%, transparent 22%)',
+                 maskImage: 'linear-gradient(to right, black 10%, transparent 22%)'
+               }}>
+            <Image 
+              src="/images/krishna_poster.jpg"
+              alt="Krishna Silhouette"
+              fill
+              priority
+              className="object-contain"
+              style={{ objectPosition: '0% bottom' }}
+            />
+          </div>
 
-          <div className="absolute inset-0 z-0" style={{ background: 'var(--bg-primary)' }} />
+          {/* Dynamic Three.js Glowing Embers / Dust */}
+          <div className="absolute inset-0 z-15 pointer-events-none">
+            <ThreeBackground />
+          </div>
 
-          <video autoPlay loop muted playsInline preload="auto"
-            className="video-upright-fixed"
-            style={{ opacity: videoReady ? 1 : 0, transition: 'opacity 1.5s ease' }}
-            onCanPlay={() => setVideoReady(true)}
-          >
-            <source src="/videos/splash_bg.mp4" type="video/mp4" />
-            <source src="https://v1.pinimg.com/videos/iht/expMp4/9a/a2/bb/9aa2bb472348ce7f4ac3e63659f9b866_720w.mp4" type="video/mp4" />
-          </video>
+          {/* Centered Content */}
+          <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center px-4 z-20 pointer-events-none">
+            
+            <div className="relative pointer-events-auto space-y-6 animate-fade-in max-w-3xl flex flex-col items-center text-center mt-[-5vh]">
+              <h1 style={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif',
+                fontSize: 'clamp(3rem, 6vw, 5rem)',
+                fontWeight: 800,
+                lineHeight: 1.3, letterSpacing: '-0.02em', margin: 0,
+                padding: '0.1em 0', // Added padding to prevent top/bottom clipping of Devanagari text
+                background: 'linear-gradient(180deg, #FFDF8D 0%, #FF8C00 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0px 4px 20px rgba(255, 140, 0, 0.25))'
+              }}>
+                {t.home_hero_title}
+              </h1>
 
-          <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, var(--bg-primary) 0%, rgba(2,6,23,0.6) 50%, transparent 100%)' }} />
+              <p className="font-light leading-relaxed max-w-xl px-2"
+                style={{ fontSize: 'clamp(0.85rem, 1.2vw, 1.05rem)', color: 'rgba(255,255,255,0.85)', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+                {t.home_hero_desc}
+              </p>
 
-          <div className="relative z-20 text-center w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6 animate-fade-in">
-            <h1 style={{
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif',
-              fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-              fontWeight: 800, color: 'white',
-              lineHeight: 1.1, letterSpacing: '-0.02em', margin: 0,
-            }}>
-              {t.home_hero_title}
-            </h1>
-
-            <p className="font-light mx-auto leading-relaxed"
-              style={{ fontSize: 'clamp(0.8rem, 2vw, 1.05rem)', color: 'var(--text-secondary)', maxWidth: '40rem' }}>
-              {t.home_hero_desc}
-            </p>
-
-            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 pt-4">
-              <a href="#chapters-section"
-                className="inline-flex items-center justify-center gap-2 font-bold rounded-full transition-all duration-300 shadow-sm cursor-pointer"
-                style={{
-                  padding: 'clamp(0.7rem, 2vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)',
-                  background: 'white', color: 'black',
-                  fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)',
-                }}>
-                <BookOpen className="w-4 h-4 shrink-0" /> {t.home_explore}
-              </a>
-              <Link href="/ask-krishna"
-                className="inline-flex items-center justify-center gap-2 font-bold rounded-full transition-all duration-300 cursor-pointer border"
-                style={{
-                  padding: 'clamp(0.7rem, 2vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)',
-                  background: 'rgba(255, 255, 255, 0.1)', color: 'white',
-                  borderColor: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(10px)',
-                  fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)',
-                }}>
-                <Sparkles className="w-4 h-4 shrink-0" /> {t.home_ask_ai}
-              </Link>
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-5 pt-6">
+                <a href="#chapters-section"
+                  className="inline-flex items-center justify-center gap-2 font-bold rounded-full shadow-lg cursor-pointer transition-transform hover:scale-105"
+                  style={{
+                    padding: '1rem 2.5rem',
+                    background: '#f5f5f5', color: '#000',
+                    fontSize: '1rem',
+                  }}>
+                  <BookOpen className="w-4 h-4 shrink-0" /> Scroll to Explore
+                </a>
+                <Link href="/ask-krishna"
+                  className="inline-flex items-center justify-center gap-2 font-bold rounded-full transition-all duration-300 cursor-pointer border hover:bg-white/10 shadow-lg"
+                  style={{
+                    padding: '1rem 2.5rem',
+                    background: 'rgba(0, 0, 0, 0.4)', color: '#f5f5f5',
+                    borderColor: 'rgba(255, 255, 255, 0.3)', backdropFilter: 'blur(10px)',
+                    fontSize: '1rem',
+                  }}>
+                  <Sparkles className="w-4 h-4 shrink-0" /> {t.home_ask_ai}
+                </Link>
+              </div>
             </div>
           </div>
         </section>
 
         {/* ── SHLOKA OF THE DAY ── */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 relative z-30" style={{ marginTop: 'clamp(-3rem, -5vw, -6rem)' }}>
-          <div className="apple-card" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
+        <section className="relative z-30 -mt-20 sm:-mt-24 pb-12 sm:pb-16">
+          <div className="apple-card w-full max-w-5xl mx-auto px-4 sm:px-6" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
               <span className="text-xs font-mono uppercase tracking-widest font-bold" style={{ color: 'var(--text-secondary)' }}>
                 {t.home_shloka_day} • BG {sampleShloka.chapter}.{sampleShloka.verse}
@@ -144,7 +159,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Responsive grid: 1 col mobile → 2 col tablet → 3 col desktop → 4 col wide */}
           <div className="grid gap-4 sm:gap-5 lg:gap-6"
             style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))' }}>
             {chapters.map((ch) => (
@@ -199,7 +213,7 @@ export default function HomePage() {
             ))}
           </div>
         </section>
-
+        
       </main>
     </>
   );
