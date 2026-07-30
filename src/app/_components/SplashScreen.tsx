@@ -7,10 +7,24 @@ export default function SplashScreen() {
   const router = useRouter();
   const [isFading, setIsFading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [titleText, setTitleText] = useState('');
+  const fullTitle = 'Bhagavad Gita';
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 50);
-    return () => clearTimeout(t);
+    
+    // Typing effect for the title
+    let i = 0;
+    const typingInterval = setInterval(() => {
+      setTitleText(fullTitle.substring(0, i + 1));
+      i++;
+      if (i === fullTitle.length) clearInterval(typingInterval);
+    }, 180); // 180ms per character - slower, more dramatic
+
+    return () => {
+      clearTimeout(t);
+      clearInterval(typingInterval);
+    };
   }, []);
 
   const handleEnterPortal = () => {
@@ -45,7 +59,7 @@ export default function SplashScreen() {
           width: '100vh',
           height: '100vw',
           transform: 'translate(-50%, -50%) rotate(-90deg)',
-          objectFit: 'cover',
+          objectFit: 'fill', // Fits exactly to screen without cutting any side
           zIndex: 0
         }}
       >
@@ -68,23 +82,23 @@ export default function SplashScreen() {
         maxWidth: '800px',
       }}>
 
-        {/* Big Title — "Bhagavad Gita" */}
         <h1 style={{
-          fontFamily: '"Georgia", "Times New Roman", serif',
-          fontSize: 'clamp(3rem, 7vw, 6rem)',
+          fontFamily: 'var(--font-serif), serif', // Majestic Cinzel font
+          fontSize: 'clamp(2.5rem, 6vw, 5.5rem)', // Slightly smaller to fit in one line
           fontWeight: 700,
           lineHeight: 1.1,
-          paddingBottom: '0.15em', // Added padding to prevent the 'g' descender from clipping
+          paddingBottom: '0.15em',
           margin: '0 0 clamp(1rem, 2.5vw, 1.8rem) 0',
-          letterSpacing: '0.02em',
+          letterSpacing: '0.04em',
           background: 'linear-gradient(180deg, #FFFFFF 0%, #E6C27A 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           filter: 'drop-shadow(0px 4px 25px rgba(230, 194, 122, 0.4))',
-          animation: 'fadeSlideUp 1s ease 0.25s both',
           textAlign: 'center',
+          whiteSpace: 'nowrap', // Force single line
+          minHeight: '1.2em', // Prevent layout shift while typing
         }}>
-          Bhagavad Gita
+          {titleText}
         </h1>
 
         {/* Subtitle */}
@@ -156,6 +170,10 @@ export default function SplashScreen() {
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(24px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
         @media (max-width: 380px) {
           #enter-portal-btn { font-size: 0.7rem !important; padding: 0.75rem 1.25rem !important; }
