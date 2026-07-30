@@ -68,53 +68,24 @@ export default function SplashScreen() {
         maxWidth: '800px',
       }}>
 
-        {/* Eyebrow Label */}
-        <p style={{
-          fontFamily: '"Courier New", Courier, monospace',
-          fontSize: 'clamp(0.55rem, 1.3vw, 0.72rem)',
-          fontWeight: 500,
-          letterSpacing: '0.28em',
-          textTransform: 'uppercase',
-          color: 'rgba(210,165,90,0.75)',
-          marginBottom: 'clamp(1rem, 2.5vw, 1.8rem)',
-          marginTop: 0,
-          animation: 'fadeSlideUp 1s ease 0.1s both',
-        }}>
-          Eternal Edition · Kurukshetra
-        </p>
-
-        {/* Big Title — "Bhagavad" + "Gita" */}
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          gap: '0',
-          marginBottom: 'clamp(1rem, 2.5vw, 1.8rem)',
+        {/* Big Title — "Bhagavad Gita" */}
+        <h1 style={{
+          fontFamily: '"Georgia", "Times New Roman", serif',
+          fontSize: 'clamp(3rem, 7vw, 6rem)',
+          fontWeight: 700,
+          lineHeight: 1.1,
+          paddingBottom: '0.15em', // Added padding to prevent the 'g' descender from clipping
+          margin: '0 0 clamp(1rem, 2.5vw, 1.8rem) 0',
+          letterSpacing: '0.02em',
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #E6C27A 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          filter: 'drop-shadow(0px 4px 25px rgba(230, 194, 122, 0.4))',
           animation: 'fadeSlideUp 1s ease 0.25s both',
+          textAlign: 'center',
         }}>
-          <h1 style={{
-            fontFamily: '"Georgia", "Times New Roman", serif',
-            fontSize: 'clamp(3.5rem, 10vw, 7.5rem)',
-            fontWeight: 700,
-            color: '#f5f0e8',
-            lineHeight: 0.92,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            textShadow: '0 2px 40px rgba(0,0,0,0.9)',
-          }}>
-            Bhagavad
-          </h1>
-          <span style={{
-            fontFamily: '"Georgia", "Times New Roman", serif',
-            fontSize: 'clamp(2.8rem, 8vw, 6rem)',
-            fontWeight: 400,
-            fontStyle: 'italic',
-            color: '#c8853a',
-            lineHeight: 1,
-            letterSpacing: '0.01em',
-            textShadow: '0 2px 30px rgba(180,100,30,0.6)',
-          }}>
-            Gita
-          </span>
-        </div>
+          Bhagavad Gita
+        </h1>
 
         {/* Subtitle */}
         <p style={{
@@ -137,12 +108,12 @@ export default function SplashScreen() {
             id="enter-portal-btn"
             onClick={handleEnterPortal}
             style={{
-              padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 5vw, 2.75rem)',
+              padding: 'clamp(0.75rem, 2vw, 1rem) clamp(2.5rem, 6vw, 4rem)',
               background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #eab308 100%)',
               color: '#020617', fontWeight: 800,
               borderRadius: '0.875rem',
-              fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
-              letterSpacing: '0.12em', textTransform: 'uppercase',
+              fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+              letterSpacing: '0.15em', textTransform: 'uppercase',
               cursor: 'pointer', border: 'none',
               boxShadow: '0 0 40px rgba(245,158,11,0.45), 0 4px 24px rgba(0,0,0,0.45)',
               transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -161,7 +132,7 @@ export default function SplashScreen() {
             onTouchStart={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
             onTouchEnd={e => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
-            प्रवेश करें &nbsp;|&nbsp; Enter Portal
+            Enter
           </button>
         </div>
 
